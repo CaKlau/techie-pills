@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heatmap</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <canvas id="gridCanvas"></canvas>
+    <div id="tooltip" style="display: none;"></div>
+
+    <div class="sliders-wrapper">
+
+        <div class="control-group">
+            <span class="group-label">Bandwidth</span>
+            <div class="range-container">
+                <div class="range-controls">
+                    <label for="bandwidthSlider" class="range-label">Both</label>
+                    <button class="increment-btn" id="bandwidthIncrementBtn">+</button>
+                    <input type="range" min="1" max="100" value="5" id="bandwidthSlider" class="range-slider" />
+                    <button class="decrement-btn" id="bandwidthDecrementBtn">-</button>
+                    <span class="range-value" id="bandwidthValue">5</span>
+                </div>
+            </div>
+            <div class="range-container">
+                <div class="range-controls">
+                    <label for="bandwidthXSlider" class="range-label">X</label>
+                    <button class="increment-btn" id="bandwidthXIncrementBtn">+</button>
+                    <input type="range" min="1" max="100" value="5" id="bandwidthXSlider" class="range-slider" />
+                    <button class="decrement-btn" id="bandwidthXDecrementBtn">-</button>
+                    <span class="range-value" id="bandwidthXValue">5</span>
+                </div>
+            </div>
+            <div class="range-container">
+                <div class="range-controls">
+                    <label for="bandwidthYSlider" class="range-label">Y</label>
+                    <button class="increment-btn" id="bandwidthYIncrementBtn">+</button>
+                    <input type="range" min="1" max="100" value="5" id="bandwidthYSlider" class="range-slider" />
+                    <button class="decrement-btn" id="bandwidthYDecrementBtn">-</button>
+                    <span class="range-value" id="bandwidthYValue">5</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <span class="group-label">Color</span>
+            <div class="range-container">
+                <div class="range-controls">
+                    <label for="colorDepthSlider" class="range-label">Depth</label>
+                    <button class="increment-btn" id="colorDepthIncrementBtn">+</button>
+                    <input type="range" min="2" max="128" value="32" id="colorDepthSlider" class="range-slider" />
+                    <button class="decrement-btn" id="colorDepthDecrementBtn">-</button>
+                    <span class="range-value" id="colorDepthValue">32</span>
+                </div>
+            </div>
+            <div class="range-container">
+                <div class="range-controls">
+                    <label class="range-label">Palette</label>
+                    <select id="paletteSelect">
+                        <option value="Hot">Hot</option>
+                        <option value="YlOrRd">YlOrRd</option>
+                        <option value="Blues">Blues</option>
+                        <option value="Cool">Cool</option>
+                        <option value="Inferno">Inferno</option>
+                        <option value="Magma">Magma</option>
+                        <option value="Plasma">Plasma</option>
+                        <option value="Viridis">Viridis</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module" src="script.js"></script>
+
+</body>
+
+</html>

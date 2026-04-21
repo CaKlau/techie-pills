@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geo Heatmap</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="map"></div>
+
+    <div id="controls">
+        <div id="info">Loading locations...</div>
+
+        <div class="control-group">
+            <button id="toggleCircles" class="toggle-btn">Show Circles</button>
+            <button id="toggleHeatmap" class="toggle-btn">Hide Heatmap</button>
+            <button id="drawMode" class="toggle-btn">✏️ Draw Mode</button>
+        </div>
+
+        <div class="control-group">
+            <div class="control-row">
+                <span class="control-label">Bandwidth</span>
+                <button id="decreaseBandwidth" class="step-btn">−</button>
+                <button id="increaseBandwidth" class="step-btn">+</button>
+            </div>
+            <div class="control-row">
+                <span class="control-label">Bandwidth X</span>
+                <button id="decreaseBandwidthX" class="step-btn">−</button>
+                <button id="increaseBandwidthX" class="step-btn">+</button>
+            </div>
+            <div class="control-row">
+                <span class="control-label">Bandwidth Y</span>
+                <button id="decreaseBandwidthY" class="step-btn">−</button>
+                <button id="increaseBandwidthY" class="step-btn">+</button>
+            </div>
+            <button id="silvermanBtn" class="toggle-btn">Silverman</button>
+        </div>
+
+        <div class="control-group">
+            <div class="control-row">
+                <span class="control-label">Color Depth</span>
+                <button id="decreaseColorDepth" class="step-btn">−</button>
+                <button id="increaseColorDepth" class="step-btn">+</button>
+            </div>
+            <div class="control-row">
+                <span class="control-label">Palette</span>
+                <select id="paletteSelect" class="palette-select">
+                    <option value="Hot">Hot</option>
+                    <option value="YlOrRd">YlOrRd</option>
+                    <option value="Blues">Blues</option>
+                    <option value="Cool">Cool</option>
+                    <option value="Inferno">Inferno</option>
+                    <option value="Magma">Magma</option>
+                    <option value="Plasma">Plasma</option>
+                    <option value="Viridis">Viridis</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="module" src="app.js"></script>
+</body>
+</html>

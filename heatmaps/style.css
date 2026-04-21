@@ -1,0 +1,118 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: system-ui, sans-serif;
+}
+
+#map {
+    width: 100vw;
+    height: 100vh;
+}
+
+#controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 200px;
+}
+
+#info {
+    background: #22222a;
+    color: #c0c0d0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    border: 1px solid #3a3a46;
+}
+
+.control-group {
+    background: #22222a;
+    border: 1px solid #3a3a46;
+    border-radius: 6px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.toggle-btn {
+    width: 100%;
+    padding: 7px;
+    background: #2e2e38;
+    color: #c0c0d0;
+    border: 1px solid #3a3a46;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    text-align: left;
+}
+
+.toggle-btn:hover {
+    background: #3a3a48;
+}
+
+.control-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.control-label {
+    flex: 1;
+    font-size: 12px;
+    color: #888899;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.step-btn {
+    width: 28px;
+    height: 28px;
+    background: #2e2e38;
+    color: #c0c0d0;
+    border: 1px solid #3a3a46;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.step-btn:hover {
+    background: #3a3a48;
+}
+
+.step-btn:active {
+    background: #44445a;
+}
+
+.palette-select {
+    flex: 1;
+    background: #2e2e38;
+    color: #c0c0d0;
+    border: 1px solid #3a3a46;
+    border-radius: 6px;
+    padding: 4px 6px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.palette-select:hover {
+    background: #3a3a48;
+}
+
+#map.draw-mode-active {
+    cursor: crosshair !important;
+}
+
+#map.draw-mode-active .leaflet-grab {
+    cursor: crosshair !important;
+}
