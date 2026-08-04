@@ -1,4 +1,4 @@
-# 💊 Techie Pills
+# 💊 Techie Pills // Carsten Klaus
 
 Code snippets, scripts, and configuration files from YouTube videos - bite-sized technical content covering coding, AI, algorithms, Kubernetes, scripting, and more.
 
