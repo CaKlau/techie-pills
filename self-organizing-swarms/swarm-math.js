@@ -30,60 +30,103 @@ export class SwarmFormation {
         return new_particles;
     }
 
-    computeLJForceVector(particleIndex, particles) {
+    cellKey(cx, cy, cz) {
+        return `${cx},${cy},${cz}`;
+    }
+
+    buildGrid(particles) {
+        const r_c = this.params.r_c;
+        const grid = new Map();
+        for (let i = 0; i < particles.length; i++) {
+            const p = particles[i].position;
+            const key = this.cellKey(Math.floor(p.x / r_c), Math.floor(p.y / r_c), Math.floor(p.z / r_c));
+            if (!grid.has(key)) grid.set(key, []);
+            grid.get(key).push(i);
+        }
+        return grid;
+    }
+
+    filterCloseParticles(sourceParticleIndex, particles, grid) {
+
+        let closeParticleIndices = []
+        const sourceParticle = particles[sourceParticleIndex];
+
+        const r_c = this.params.r_c;
+        const cx = Math.floor(sourceParticle.position.x / r_c);
+        const cy = Math.floor(sourceParticle.position.y / r_c);
+        const cz = Math.floor(sourceParticle.position.z / r_c);
+
+
+
+        for (let dx = -1; dx <= 1; dx++) {
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dz = -1; dz <= 1; dz++) {
+
+                    const cell = grid.get(this.cellKey(cx + dx, cy + dy, cz + dz));
+                    if (!cell) continue;
+
+                    closeParticleIndices.push(...cell);
+
+
+                }
+            }
+        }
+        return closeParticleIndices
+    }
+
+    computeLJForceVector(particleIndex, particles, grid) {
 
         let accumulatedForce = new Vector3(0, 0, 0);
 
         const sourceParticle = particles[particleIndex];
 
-        for (let j = 0; j < particles.length; j++) {
-            if (particleIndex == j) {
-                continue;
-            }
+        const closeParticleIndices = this.filterCloseParticles(particleIndex, particles, grid);
 
-            const targetParticle = particles[j];
+        for (let j = 0; j < closeParticleIndices.length; j++) {
+            
+            const idx = closeParticleIndices[j]
+            if (idx == particleIndex) continue;   // no force on self
 
-            const separationVector = sourceParticle.position.sub(targetParticle.position);
+            const separationVector = sourceParticle.position.sub(particles[idx].position);
             const distance = separationVector.length();
-            const unitSeparationVector = separationVector.normalize()
 
-            const forceMagnitude = Particle.lennardJonesPotentialDerivative(distance, this.params.r0, this.params.epsilon)
+            if (distance >= this.params.r_c) continue;
 
-            const partialForce = unitSeparationVector.scale(-forceMagnitude);
-            accumulatedForce = accumulatedForce.add(partialForce);
+            const unitSeparationVector = separationVector.normalize();
+            const forceMagnitude = Particle.lennardJonesPotentialDerivative(distance, this.params.r0, this.params.epsilon);
+            accumulatedForce = accumulatedForce.add(unitSeparationVector.scale(-forceMagnitude));
         }
 
         return accumulatedForce;
     }
 
 
-    computeCentroidCohersionForce(particleIndex, centroid, particles) {
-        let forceCentroidCohersion = particles[particleIndex].position.sub(centroid).scale(-this.params.k_c)
-        return forceCentroidCohersion
+    computeCentroidCohesionForce(particleIndex, centroid, particles) {
+        let forceCentroidCohesion = particles[particleIndex].position.sub(centroid).scale(-this.params.k_c)
+        return forceCentroidCohesion
     }
 
-    computeForceVector(particleIndex, centroid, particles) {
-        
-        const LVForce = this.computeLJForceVector(particleIndex, particles);
+    computeForceVector(particleIndex, centroid, particles, grid) {
 
-        const CCForce = this.computeCentroidCohersionForce(particleIndex, centroid, particles);
+        const LJForce = this.computeLJForceVector(particleIndex, particles, grid);
 
-        return LVForce.add(CCForce);
+        const CCForce = this.computeCentroidCohesionForce(particleIndex, centroid, particles);
+
+        return LJForce.add(CCForce);
     }
 
     update(dt) {
 
         let forces = [];
         let centroid = computeCentroid(this.particles);
+        let grid = this.buildGrid(this.particles);
 
         for (let i = 0; i < this.particles.length; i++) {
 
-            let force = this.computeForceVector(i, centroid, this.particles)
+            let force = this.computeForceVector(i, centroid, this.particles, grid)
 
             forces.push(force)
         }
-    
-
 
         for (let i = 0; i < this.particles.length; i++) {
 
