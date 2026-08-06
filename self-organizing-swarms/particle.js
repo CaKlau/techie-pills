@@ -5,12 +5,14 @@ export class Particle {
         this.velocity = velocity;
     }
 
-    static lennardJonesPotential(r, r0, epsilon) {
-        return epsilon * ((r0 / r) ** 12 - 2 * (r0 / r) ** 6);
+    static lennardJonesForce(r, params) {
+        const { r0, epsilon } = params;
+        return (12 * epsilon) / r * ((r0 / r) ** 6 - (r0 / r) ** 12);
     }
 
-    static lennardJonesPotentialDerivative(r, r0, epsilon) {
-        return (12 * epsilon) / r  * ((r0 / r) ** 6 - (r0 / r) ** 12);
+    static morseForce(r, params) {
+        const { r0, epsilon, a } = params;
+        return 2 * a * epsilon * (Math.exp(-a * (r - r0)) - Math.exp(-2 * a * (r - r0)));
     }
 
 }

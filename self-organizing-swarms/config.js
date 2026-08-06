@@ -1,6 +1,7 @@
 export const SWARM_PARAMS = {
-    // Lennard-Jones interaction
-    r0: 1.0,        // equilibrium spacing
+    potential: "morse",
+    a: 1.0,  //knob for Morse potential
+    r0: 3.0,        // equilibrium spacing
     epsilon: 1.0,    // well depth
     r_c: 2.5,  //cutoff, 2.5*r0
 
@@ -13,6 +14,6 @@ export const SWARM_PARAMS = {
 
     // Initialization
     count: 4000,
-    spawnRange: 50,      // positions in [-50, 50]
-    velocityRange: 15,    // velocities in [-5, 5]
+    spawnRange: 50,   
+    velocityRange: 15,
 };

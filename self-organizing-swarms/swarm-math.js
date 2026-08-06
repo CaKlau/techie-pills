@@ -1,9 +1,15 @@
 import { Particle } from "./particle.js";
 import { computeCentroid, getRandom, Vector3 } from "./utils.js";
 
+const POTENTIALS = {
+    lj: Particle.lennardJonesForce,
+    morse: Particle.morseForce,
+};
+
 export class SwarmFormation {
     constructor(params) {
         this.params = params;
+        this.forceFn = POTENTIALS[params.potential];
         this.particles = this.initSampleParticles();
     };
 
@@ -67,14 +73,13 @@ export class SwarmFormation {
 
                     closeParticleIndices.push(...cell);
 
-
                 }
             }
         }
         return closeParticleIndices
     }
 
-    computeLJForceVector(particleIndex, particles, grid) {
+    computePotentialForceVector(particleIndex, particles, grid, forceMagnitudeFn) {
 
         let accumulatedForce = new Vector3(0, 0, 0);
 
@@ -93,7 +98,8 @@ export class SwarmFormation {
             if (distance >= this.params.r_c) continue;
 
             const unitSeparationVector = separationVector.normalize();
-            const forceMagnitude = Particle.lennardJonesPotentialDerivative(distance, this.params.r0, this.params.epsilon);
+
+            const forceMagnitude = forceMagnitudeFn(distance, this.params);
             accumulatedForce = accumulatedForce.add(unitSeparationVector.scale(-forceMagnitude));
         }
 
@@ -106,13 +112,15 @@ export class SwarmFormation {
         return forceCentroidCohesion
     }
 
+
+
     computeForceVector(particleIndex, centroid, particles, grid) {
 
-        const LJForce = this.computeLJForceVector(particleIndex, particles, grid);
+        const potentialForce = this.computePotentialForceVector(particleIndex, particles, grid, this.forceFn);
 
-        const CCForce = this.computeCentroidCohesionForce(particleIndex, centroid, particles);
+        const cohesionForce = this.computeCentroidCohesionForce(particleIndex, centroid, particles);
 
-        return LJForce.add(CCForce);
+        return potentialForce.add(cohesionForce);
     }
 
     update(dt) {

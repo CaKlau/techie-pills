@@ -17,7 +17,7 @@ const camera = new THREE.PerspectiveCamera(
     1000                                    // far clip
 );
 
-camera.position.z = 30;                    // pull the camera back so we can see
+camera.position.z = 35;                    // pull the camera back so we can see
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(window.devicePixelRatio); // less pixalated spehres
