@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { SwarmFormation } from "./swarm-math.js";
-
+import { SWARM_PARAMS } from "./config.js";
 
 
 // 1. Scene, camera, renderer — the three essentials
@@ -17,7 +17,7 @@ const camera = new THREE.PerspectiveCamera(
     1000                                    // far clip
 );
 
-camera.position.z = 15;                    // pull the camera back so we can see
+camera.position.z = 30;                    // pull the camera back so we can see
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(window.devicePixelRatio); // less pixalated spehres
@@ -30,7 +30,7 @@ controls.target.set(0, 0, 0);   // orbit around the swarm's center
 controls.update();
 
 
-const swarm = new SwarmFormation();
+const swarm = new SwarmFormation(SWARM_PARAMS);
 
 let meshes = swarm.particles.map(() => {
     const m = new THREE.Mesh(geometry, material);
@@ -59,7 +59,7 @@ scene.add(grid);
 
 
 let accumulator = 0;
-const step = 1 / 200; // simulate at a fixed 100 Hz
+const step = 1 / 200; // simulate at a fixed 200 Hz
 
 // 4. Render loop
 function animate() {

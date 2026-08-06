@@ -5,11 +5,11 @@ export class Particle {
         this.velocity = velocity;
     }
 
-    static lennartJonesPotential(r, r0 = 1.0, epsilon = 1.0) {
+    static lennardJonesPotential(r, r0, epsilon) {
         return epsilon * ((r0 / r) ** 12 - 2 * (r0 / r) ** 6);
     }
 
-    static lennartJonesPotentialDerivative(r, r0 = 1.0, epsilon = 1.0) {
+    static lennardJonesPotentialDerivative(r, r0, epsilon) {
         return (12 * epsilon) / r  * ((r0 / r) ** 6 - (r0 / r) ** 12);
     }
 

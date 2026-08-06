@@ -11,6 +11,17 @@ export function getRandom(min, max) {
   return Math.random() * (max - min) + min;
 }
 
+export function computeCentroid(particles) {
+  
+  let centroid = new Vector3(0, 0, 0);
+  
+  for (let i = 0; i < particles.length; i++) {
+    centroid = centroid.add(particles[i].position)
+  }
+  centroid = centroid.scale(1.0 / particles.length)
+  return centroid;
+}
+
 
 export class Vector3 {
   constructor(x = 0, y = 0, z = 0) {
