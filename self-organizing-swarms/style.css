@@ -7,3 +7,39 @@ body {
 canvas {
   display: block;
 }
+
+
+
+/* lil-gui theming */
+.lil-gui {
+  --background-color: #16181c;
+  --text-color: #e6e6e6;
+  --title-background-color: #0e0f11;
+  --title-text-color: #30F091;
+  /* your particle green */
+  --widget-color: #23262b;
+  --hover-color: #2e3238;
+  --number-color: #30F091;
+  --string-color: #9be27a;
+
+  --font-size: 15px;
+  --input-font-size: 12px;
+  --font-family: system-ui, -apple-system, sans-serif;
+  --font-family-mono: ui-monospace, Menlo, monospace;
+
+  --padding: 8px;
+  --spacing: 6px;
+  --widget-height: 24px;
+  --name-width: 45%;
+  /* label column width */
+  --slider-knob-color: #30F091;
+  --slider-input-color: #2e3238;
+  --width: 300px;
+}
+
+/* Reposition */ 
+.lil-gui.autoPlace {
+  top: 16px;
+  right: 16px;
+  left: auto;
+}

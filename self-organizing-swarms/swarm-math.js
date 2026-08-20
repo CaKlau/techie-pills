@@ -1,7 +1,7 @@
 import { Particle } from "./particle.js";
 import { computeCentroid, getRandom, Vector3 } from "./utils.js";
 
-const POTENTIALS = {
+export const POTENTIALS = {
     lj: Particle.lennardJonesForce,
     morse: Particle.morseForce,
 };
@@ -11,6 +11,9 @@ export class SwarmFormation {
         this.params = params;
         this.forceFn = POTENTIALS[params.potential];
         this.particles = this.initSampleParticles();
+        
+        this.params.r_c = 2.5 * this.params.r0 // Invariance to assure r0 < r_c
+
     };
 
     initSampleParticles() {
@@ -95,12 +98,12 @@ export class SwarmFormation {
             const separationVector = sourceParticle.position.sub(particles[idx].position);
             const distance = separationVector.length();
 
-            if (distance >= this.params.r_c) continue;
+            if (distance >= this.params.r_c) continue; // Dispite grid cutoff we need to respect the radius
 
             const unitSeparationVector = separationVector.normalize();
 
-            const forceMagnitude = forceMagnitudeFn(distance, this.params);
-            accumulatedForce = accumulatedForce.add(unitSeparationVector.scale(-forceMagnitude));
+            const forceMagnitude = -forceMagnitudeFn(distance, this.params);
+            accumulatedForce = accumulatedForce.add(unitSeparationVector.scale(forceMagnitude));
         }
 
         return accumulatedForce;
@@ -129,18 +132,21 @@ export class SwarmFormation {
         let centroid = computeCentroid(this.particles);
         let grid = this.buildGrid(this.particles);
 
+        // 1. Compute forces first ... 
         for (let i = 0; i < this.particles.length; i++) {
 
             let force = this.computeForceVector(i, centroid, this.particles, grid)
 
             forces.push(force)
         }
-
+        // 2. ... then change position (not mixed)
         for (let i = 0; i < this.particles.length; i++) {
 
             let particle = this.particles[i];
 
             let force = forces[i];
+
+            //  semi-implicit (symplectic) Euler
 
             force = force.scale(dt / this.params.mass)
 
@@ -151,5 +157,9 @@ export class SwarmFormation {
             particle.position = particle.position.add(particle.velocity.scale(dt))
 
         }
+    }
+
+    rebuildSwarm() {
+        this.particles = this.initSampleParticles();
     }
 }
