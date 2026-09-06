@@ -3,6 +3,8 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { SwarmFormation } from "./swarm-math.js";
 import { SWARM_PARAMS } from "./config.js";
 import { ParameterControls } from "./gui.js";
+import { ProjectileSystem } from "./projectiles.js";
+import { Vector3 } from "./utils.js";
 
 
 // 1. Scene, camera, renderer — the three essentials
@@ -16,9 +18,9 @@ const COLOR_FAST = new THREE.Color(0xF0304F);   // a "fitting red" — pick to t
 const scratchColor = new THREE.Color();         // reused every particle
 
 const camera = new THREE.PerspectiveCamera(
-    75,                                     // field of view
+    75,                                     // field of view in degree
     window.innerWidth / window.innerHeight, // aspect ratio
-    0.1,                                    // near clip
+    0.1,                                    // near clip (how far the "window plane" is away from the eye)
     1000                                    // far clip
 );
 
@@ -54,7 +56,6 @@ light.position.set(2, 3, 4);
 scene.add(light);
 scene.add(new THREE.AmbientLight(0xffffff, 0.3)); // soft fill
 
-
 const hsl = {};
 
 function syncInstances() {
@@ -83,8 +84,80 @@ scene.add(grid);
 
 
 
+
+const projectiles = new ProjectileSystem(SWARM_PARAMS);
+
+const projectileGeometry = new THREE.SphereGeometry(1.0, 16, 16);
+const projectileMaterial = new THREE.MeshStandardMaterial({ color: 0xffa500 });
+const projectileMeshes = new Map();
+
+function syncProjectiles() {
+    for (const p of projectiles.projectiles) {
+        let mesh = projectileMeshes.get(p);
+        if (!mesh) {
+            mesh = new THREE.Mesh(projectileGeometry, projectileMaterial);
+            scene.add(mesh);
+            projectileMeshes.set(p, mesh);
+        }
+        mesh.position.set(p.position.x,p.position.y,p.position.z);
+    }
+    // Projectile remove when leaving bounding box
+    for (const [p, mesh] of projectileMeshes) {
+        if(!projectiles.projectiles.includes(p)) {
+            scene.remove(mesh);
+            projectileMeshes.delete(p);
+        }
+    }
+}
+
+let armed = false;
+window.addEventListener("keydown", e => { 
+    if (e.key === "x") { 
+        armed = true;  
+        controls.enabled = false; 
+    } });
+
+window.addEventListener("keyup", e => { 
+    if (e.key === "x") { 
+        armed = false; 
+        controls.enabled = true;  
+    } });
+
+
+const raycaster = new THREE.Raycaster();
+const distance = 15.0
+const projectileVelocity = 25.0
+
+renderer.domElement.addEventListener("pointerdown", e => {
+    if (!armed || e.button !== 0) return;
+
+    const ndcX = e.clientX / window.innerWidth * 2 - 1;
+    const ndcY = -e.clientY / window.innerHeight * 2 + 1;
+    const ndc = new THREE.Vector2(ndcX, ndcY);
+    raycaster.setFromCamera(ndc, camera); // setup of the ray, create a ray between eye and window cross point
+
+    const rayOrigin = raycaster.ray.origin // the eye of the camera
+    const rayDirection = raycaster.ray.direction;
+
+   // spawn = origin + direction * distance
+    const spawn = rayDirection.clone().multiplyScalar(distance).add(rayOrigin);
+
+    projectiles.shoot(
+        new Vector3(spawn.x, spawn.y, spawn.z),
+        new Vector3(
+            rayDirection.x * projectileVelocity, 
+            rayDirection.y * projectileVelocity, 
+            rayDirection.z * projectileVelocity)
+    )
+
+});
+
+
+
+
+
 let accumulator = 0;
-const step = 1 / 100; // simulate at a fixed 100 Hz
+const step = SWARM_PARAMS.dt;
 const maxSubSteps = 3; // ost catch-up steps allowed per frame
 
 // 4. Render loop
@@ -99,11 +172,15 @@ function animate() {
     accumulator += clock.getDelta();
     accumulator = Math.min(accumulator, maxSubSteps * step);
     while (accumulator >= step) {
+        projectiles.applyForces(swarm.particles);
         swarm.update(step)
+        projectiles.update(step)
         accumulator -= step;
     }
 
     syncInstances();
+    syncProjectiles()
+    
     controls.update();
     renderer.render(scene, camera);
 }

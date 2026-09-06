@@ -12,13 +12,11 @@ export function getRandom(min, max) {
 }
 
 export function computeCentroid(particles) {
-  
-  let centroid = new Vector3(0, 0, 0);
-  
+  const centroid = new Vector3(0, 0, 0);
   for (let i = 0; i < particles.length; i++) {
-    centroid = centroid.add(particles[i].position)
+    centroid.add(particles[i].position);
   }
-  centroid = centroid.scale(1.0 / particles.length)
+  centroid.scale(1.0 / particles.length);
   return centroid;
 }
 
@@ -30,24 +28,50 @@ export class Vector3 {
     this.z = z;
   }
 
+  set(x, y, z) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+    return this;
+  }
+
+  copy(v) {
+    this.x = v.x;
+    this.y = v.y;
+    this.z = v.z;
+    return this;
+  }
+
+  clone() {
+    return new Vector3(this.x, this.y, this.z);
+  }
+
   add(v) {
-    return new Vector3(this.x + v.x, this.y + v.y, this.z + v.z);
+    this.x += v.x;
+    this.y += v.y;
+    this.z += v.z;
+    return this;
   }
 
   sub(v) {
-    return new Vector3(this.x - v.x, this.y - v.y, this.z - v.z);
+    this.x -= v.x;
+    this.y -= v.y;
+    this.z -= v.z;
+    return this;
   }
 
   scale(s) {
-    return new Vector3(this.x * s, this.y * s, this.z * s);
+    this.x *= s;
+    this.y *= s;
+    this.z *= s;
+    return this;
   }
 
-  distance(v) {
-    const dx = this.x - v.x
-    const dy = this.y - v.y
-    const dz = this.z - v.z
-    return Math.sqrt(dx * dx + dy * dy + dz * dz);
-
+  addScaledVector(v, s) {
+    this.x += v.x * s;
+    this.y += v.y * s;
+    this.z += v.z * s;
+    return this;
   }
 
   length() {
@@ -56,7 +80,7 @@ export class Vector3 {
 
   normalize() {
     const len = this.length();
-    return len === 0 ? new Vector3() : this.scale(1 / len); // guard divide-by-zero
+    if (len > 0) this.scale(1 / len);
+    return this;
   }
-
 }

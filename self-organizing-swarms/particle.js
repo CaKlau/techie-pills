@@ -1,8 +1,11 @@
 
+import { Vector3 } from "./utils.js";
+
 export class Particle {
     constructor(position, velocity) {
         this.position = position
         this.velocity = velocity;
+        this.force = new Vector3(0, 0, 0);
     }
 
     static lennardJonesForce(r, params) {

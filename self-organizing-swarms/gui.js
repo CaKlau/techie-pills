@@ -32,7 +32,10 @@ export class ParameterControls {
         const appearance = this.gui.addFolder("Appearance");
         appearance.add(this.params, "vRef", 0.1, 20, 0.1)
             .name("vRef (color)");
-       
+
+        const projectiles = this.gui.addFolder("Projectiles");
+        projectiles.add(this.params, "C", 0, 2000, 5).name("C (strength)");
+        projectiles.add(this.params, "rho", 1, 100, 0.5).name("rho (radius)");
 
         // count/spawn need a fresh swarm — add a reset button
         this.gui.add({ reset: () => swarm.rebuildSwarm() }, "reset").name("Respawn");

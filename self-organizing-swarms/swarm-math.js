@@ -1,6 +1,9 @@
 import { Particle } from "./particle.js";
 import { computeCentroid, getRandom, Vector3 } from "./utils.js";
 
+const _separation = new Vector3();
+const _cohesion = new Vector3();
+
 export const POTENTIALS = {
     lj: Particle.lennardJonesForce,
     morse: Particle.morseForce,
@@ -82,81 +85,59 @@ export class SwarmFormation {
         return closeParticleIndices
     }
 
-    computePotentialForceVector(particleIndex, particles, grid, forceMagnitudeFn) {
-
-        let accumulatedForce = new Vector3(0, 0, 0);
-
+    addPotentialForce(particleIndex, particles, grid, forceMagnitudeFn, out) {
         const sourceParticle = particles[particleIndex];
-
+        const r_c = this.params.r_c;
         const closeParticleIndices = this.filterCloseParticles(particleIndex, particles, grid);
 
         for (let j = 0; j < closeParticleIndices.length; j++) {
-            
-            const idx = closeParticleIndices[j]
-            if (idx == particleIndex) continue;   // no force on self
+            const idx = closeParticleIndices[j];
+            if (idx == particleIndex) continue;
 
-            const separationVector = sourceParticle.position.sub(particles[idx].position);
-            const distance = separationVector.length();
-
-            if (distance >= this.params.r_c) continue; // Dispite grid cutoff we need to respect the radius
-
-            const unitSeparationVector = separationVector.normalize();
+            _separation.copy(sourceParticle.position).sub(particles[idx].position);
+            const distance = _separation.length();
+            if (distance >= r_c) continue;
 
             const forceMagnitude = -forceMagnitudeFn(distance, this.params);
-            accumulatedForce = accumulatedForce.add(unitSeparationVector.scale(forceMagnitude));
+            out.addScaledVector(_separation, forceMagnitude / distance);
         }
-
-        return accumulatedForce;
     }
 
-
-    computeCentroidCohesionForce(particleIndex, centroid, particles) {
-        let forceCentroidCohesion = particles[particleIndex].position.sub(centroid).scale(-this.params.k_c)
-        return forceCentroidCohesion
+    addCohesionForce(particleIndex, centroid, particles, out) {
+        _cohesion.copy(particles[particleIndex].position).sub(centroid);
+        out.addScaledVector(_cohesion, -this.params.k_c);
     }
 
+    accumulateForces() {
+        const centroid = computeCentroid(this.particles);
+        const grid = this.buildGrid(this.particles);
 
+        for (let i = 0; i < this.particles.length; i++) {
+            const force = this.particles[i].force;
+            this.addPotentialForce(i, this.particles, grid, this.forceFn, force);
+            this.addCohesionForce(i, centroid, this.particles, force);
+        }
+    }
 
-    computeForceVector(particleIndex, centroid, particles, grid) {
+    integrate(dt) {
+        const forceToVelocity = dt / this.params.mass;
+        const dampingFactor = 1 - this.params.damping * dt;
 
-        const potentialForce = this.computePotentialForceVector(particleIndex, particles, grid, this.forceFn);
+        for (let i = 0; i < this.particles.length; i++) {
+            const particle = this.particles[i];
 
-        const cohesionForce = this.computeCentroidCohesionForce(particleIndex, centroid, particles);
+            // semi-implicit (symplectic) Euler, all in place
+            particle.velocity.addScaledVector(particle.force, forceToVelocity);
+            particle.velocity.scale(dampingFactor);
+            particle.position.addScaledVector(particle.velocity, dt);
 
-        return potentialForce.add(cohesionForce);
+            particle.force.set(0, 0, 0);
+        }
     }
 
     update(dt) {
-
-        let forces = [];
-        let centroid = computeCentroid(this.particles);
-        let grid = this.buildGrid(this.particles);
-
-        // 1. Compute forces first ... 
-        for (let i = 0; i < this.particles.length; i++) {
-
-            let force = this.computeForceVector(i, centroid, this.particles, grid)
-
-            forces.push(force)
-        }
-        // 2. ... then change position (not mixed)
-        for (let i = 0; i < this.particles.length; i++) {
-
-            let particle = this.particles[i];
-
-            let force = forces[i];
-
-            //  semi-implicit (symplectic) Euler
-
-            force = force.scale(dt / this.params.mass)
-
-            particle.velocity = particle.velocity.add(force)
-
-            particle.velocity = particle.velocity.scale(1 - this.params.damping * dt);
-
-            particle.position = particle.position.add(particle.velocity.scale(dt))
-
-        }
+        this.accumulateForces();
+        this.integrate(dt);
     }
 
     rebuildSwarm() {

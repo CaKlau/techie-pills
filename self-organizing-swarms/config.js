@@ -6,16 +6,21 @@ export const SWARM_PARAMS = {
     // r_c: 7.5,  //cutoff, invariance: 2.5*r0 -> overwritten by SwarmFormation
 
     // Cohesion
-    k_c: 0.5,        // centroid spring stiffness
+    k_c: 0.2,        // centroid spring stiffness
 
     // Dynamics
-    damping: 2.0,
+    dt: 1 / 100, // simulate at a fixed Hz
+    damping: 0.5,
     mass: 1.0,
 
     // Initialization
-    count: 2000,
+    count: 200,
     spawnRange: 50,   
     velocityRange: 15,
 
     vRef: 1.0,
+
+    // Projectiles
+    C: 800.0,
+    rho: 8.0
 };
